@@ -25,9 +25,10 @@
                 transport = new easyXDM.transport.BestAvailableTransport({
                     local: "../hash.html",
                     onMessage: function(message, origin){
-                        // Echo back the message
                         transport.postMessage(message);
                     }
+                },function() {
+                  alert("done ?");
                 });
             };
             window.onunload = function(){

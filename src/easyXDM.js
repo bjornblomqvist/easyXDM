@@ -43,6 +43,10 @@ easyXDM = {
          * @param {String} msg The message to log
          */
         log: function(msg){
+	
+						 console.log(location.host + ":" + msg);
+						return;
+	
             // Uses memoizing to cache the implementation
             var log;
             if (typeof console === "undefined" || typeof console.log === "undefined") {
@@ -72,6 +76,10 @@ easyXDM = {
          * @param {String} msg The message to trace
          */
         trace: function(msg){
+	
+						console.info(location.host + ":" + msg);
+						return;
+	
             // Uses memoizing to cache the implementation
             var trace;
             var el = document.getElementById("log");

@@ -1,6 +1,66 @@
 /*jslint evil: true, browser: true, immed: true, passfail: true, undef: true, newcap: true*/
 /*global easyXDM, window, escape, unescape */
 
+function withValidation(config,onReady,transport) {
+	
+	// #ifdef debug
+  easyXDM.Debug.trace('adding validation');
+  // #endif
+	
+	/*
+		Validation of the connection when its done.
+	*/
+	{
+		var validationMessage = "validation message:"+Math.random()+location.host;
+		var onMessage = config.onMessage;
+		var transport;
+		var otherSideDone = false;
+		var thisSideDone = false;
+	
+		config.onMessage = function(message,origin) {
+			// #ifdef debug
+      easyXDM.Debug.trace('val got: "'+message+'"');
+			easyXDM.Debug.trace('looking for: "'+validationMessage+'"');
+      // #endif
+			if(message.indexOf('validation message:') == 0) {
+				easyXDM.Debug.trace('includes: validation message:');
+				if(message == validationMessage) {
+					easyXDM.Debug.trace('is equal');
+					thisSideDone = true;
+				} else {
+					easyXDM.Debug.trace('is not eqeal');
+					otherSideDone = true;
+					setTimeout(function() {
+						transport.postMessage(message);
+					},1000);
+				}
+			} else {
+				onMessage(message);
+			}
+			
+			
+			//	When both sides are done we set the correct message handler and call onReady
+			if(thisSideDone && otherSideDone) {
+				// #ifdef debug
+        easyXDM.Debug.trace('we are now done with validation so we will reset the state');
+        // #endif
+				config.onMessage = onMessage;
+				if(onReady) {
+					onReady();
+				}
+			}
+		}
+
+    return function on_ready() {
+			// #ifdef debug
+      easyXDM.Debug.trace("onready.. lets send validation message");
+      // #endif
+			transport.postMessage(validationMessage)
+		};
+	}
+	
+};
+
 easyXDM.transport = {
     /**
      * @class easyXDM.transport.BestAvailableTransport
@@ -54,8 +114,8 @@ easyXDM.transport = {
                     break;
             }
         }
-        
-        return new Transport(config, onReady);
+
+				return new Transport(config,onReady);
     },
     /**
      * @class easyXDM.transport.PostMessageTransport
@@ -75,6 +135,7 @@ easyXDM.transport = {
         if (!window.postMessage) {
             throw new Error("This browser does not support window.postMessage");
         }
+
         // #ifdef debug
         easyXDM.Debug.trace("easyXDM.transport.PostMessageTransport.constructor");
         // #endif
@@ -238,6 +299,12 @@ easyXDM.transport = {
         // #ifdef debug
         easyXDM.Debug.trace("easyXDM.transport.HashTransport.constructor");
         // #endif
+
+				//console.debug(config);
+				onReady = withValidation(config,onReady,this);
+				//console.debug(config);
+				
+
         // If no protocol is set then it means this is the host
         var isHost = (typeof easyXDM.Url.Query().xdm_p === "undefined");
         var _timer, pollInterval = config.interval || 300, usePolling = false, useParent = false, useResize = true;
@@ -310,6 +377,9 @@ easyXDM.transport = {
          * @private
          */
         function _onReady(){
+	
+						
+	
             if (isHost) {
                 if (useParent) {
                     _listenerWindow = window;
@@ -341,6 +411,11 @@ easyXDM.transport = {
             else {
                 easyXDM.DomHelper.addEventListener(_listenerWindow, "resize", _checkForMessage);
             }
+
+						// #ifdef debug
+            easyXDM.Debug.trace("WE ARE SO READY!!!"+onReady);
+            // #endif
+
             if (onReady) {
                 window.setTimeout(onReady, 10);
             }
@@ -464,6 +539,9 @@ easyXDM.transport.NameTransport = function(config, onReady){
     // #ifdef debug
     easyXDM.Debug.trace("easyXDM.transport.NameTransport.constructor");
     // #endif
+
+		onReady = withValidation(config,onReady,this);
+
     // If no protocol is set then it means this is the host
     var isHost = (typeof easyXDM.Url.Query().xdm_p === "undefined");
     
