@@ -10,92 +10,105 @@ if (_remoteUrl.indexOf("localhost") !== -1) {
 
 
 var channelId = 0;
-function createTransportBehaviorTest(config,TransportClass,testName,failureMessage) {
-	
-	
-	config.channel = "channel" + (channelId++);
-	
-	var toReturn = {
-      name: testName,
-      failedMessage: failureMessage,
-      setUp: function(){
-          this.expectedMessage = "1abcd1234";
-      },
-      steps: [{
-          name: "onReady is fired",
-          timeout: 5000,
-          run: function(){
-              var scope = this;
-							config.onMessage = function(message, origin) {  };
-              this.transport = new TransportClass(config, function(){
-                  scope.notifyResult(true);
-              });
-          }
-      }, {
-          name: "message is echoed back",
-          timeout: 1000,
-          run: function(){
-							var scope = this;
-							config.onMessage = function(message, origin) { scope.notifyResult((scope.expectedMessage === message)); };
-              this.transport.postMessage(this.expectedMessage);
-          }
-      }
-			, {
-          name: "check that no messages are droped",
-          timeout: 5000,
-          run: function(){
-							var recivedMessages = 0;
-							var scope = this;
-							config.onMessage = function(message, origin) { recivedMessages++; if(recivedMessages == 10) { scope.notifyResult(true);} };
-              for(var i = 0; i < 10; i++) {
-								this.transport.postMessage("droped ? "+i);
-							}
-          }
-      },
-			{
-          name: "check that messages arive in order",
-          timeout: 1000,
-          run: function(){
-							var recivedMessages = [];
-							var sentMessage  = [];
-							var scope = this;
-							config.onMessage = function(message, origin) {  recivedMessages.push(message); if(recivedMessages.length == 5) { scope.notifyResult(JSON.stringify(recivedMessages) == JSON.stringify(sentMessage));} };
-              for(var i = 0; i < 5; i++) {
-								sentMessage.push(""+i);
-								this.transport.postMessage(""+i);
-							}
-          }
-      },{
-          name: "send big message",
-          timeout: 10000,
-          run: function(){
-	
-					
-							// Create a big message
-							var bigMessage = "";
-							for(var i = 0; i < 20000; i++) {
-								bigMessage += "a";
-							}
-							
-							var scope = this;
-							config.onMessage = function(message, origin) { scope.notifyResult((bigMessage === message)); };
-							
-							this.transport.postMessage(bigMessage);
-          }
-      },{
-          name: "destroy",
-          run: function(){
-              this.transport.destroy();
-              return ((document.getElementsByTagName("iframe").length === 0));
-          }
-      }]
-  };
+function createTransportBehaviorTest(config, TransportClass, testName, failureMessage){
 
-	if(failureMessage) {
-		toReturn.failedMessage = failureMessage;
-	}
 
-	return toReturn;
+    config.channel = "channel" + (channelId++);
+    
+    var toReturn = {
+        name: testName,
+        failedMessage: failureMessage,
+        setUp: function(){
+            this.expectedMessage = "1abcd1234";
+        },
+        steps: [{
+            name: "onReady is fired",
+            timeout: 5000,
+            run: function(){
+                var scope = this;
+                config.onMessage = function(message, origin){
+                };
+                this.transport = new TransportClass(config, function(){
+                    scope.notifyResult(true);
+                });
+            }
+        }, {
+            name: "message is echoed back",
+            timeout: 1000,
+            run: function(){
+                var scope = this;
+                config.onMessage = function(message, origin){
+                    scope.notifyResult((scope.expectedMessage === message));
+                };
+                this.transport.postMessage(this.expectedMessage);
+            }
+        }, {
+            name: "check that no messages are droped",
+            timeout: 5000,
+            run: function(){
+                var recivedMessages = 0;
+                var scope = this;
+                config.onMessage = function(message, origin){
+                    recivedMessages++;
+                    if (recivedMessages == 10) {
+                        scope.notifyResult(true);
+                    }
+                };
+                for (var i = 0; i < 10; i++) {
+                    this.transport.postMessage("droped ? " + i);
+                }
+            }
+        }, {
+            name: "check that messages arive in order",
+            timeout: 1000,
+            run: function(){
+                var recivedMessages = [];
+                var sentMessage = [];
+                var scope = this;
+                config.onMessage = function(message, origin){
+                    recivedMessages.push(message);
+                    if (recivedMessages.length == 5) {
+                        scope.notifyResult(JSON.stringify(recivedMessages) == JSON.stringify(sentMessage));
+                    }
+                };
+                for (var i = 0; i < 5; i++) {
+                    sentMessage.push("" + i);
+                    this.transport.postMessage("" + i);
+                }
+            }
+        }, {
+            name: "send big message",
+            timeout: 10000,
+            run: function(){
+            
+            
+                // Create a big message
+                var bigMessage = "";
+                for (var i = 0; i < 20000; i++) {
+                    bigMessage += "a";
+                }
+                
+                var scope = this;
+                config.onMessage = function(message, origin){
+                    scope.notifyResult((bigMessage === message));
+                };
+                
+                this.transport.postMessage(bigMessage);
+            }
+        }, {
+            name: "destroy",
+            run: function(){
+                this.transport.destroy();
+                return ((document.getElementsByTagName("iframe").length === 0));
+            }
+        }]
+    };
+    
+    if (failureMessage) {
+        toReturn.failedMessage = failureMessage;
+    }
+    
+    return toReturn;
 }
 
 
@@ -164,18 +177,37 @@ function runTests(){
                 return this.Assert.isObject(easyXDM.Url);
             }
         }]
-    }
-		,createTransportBehaviorTest({local: "../hash.html",remote: _remoteUrl + "test_transport.html",remoteHelper: _remoteUrl + "../hash.html",container: document.getElementById("embedded")},easyXDM.transport.NameTransport,"test easyXDM.transport.NameTransport","This can fail in some modern browsers like Firefox, but this is OK as it is only needed for older browsers like IE6/IE7.")
-		,createTransportBehaviorTest({local: "../hash.html",remote: _remoteUrl + "test_transport.html",container: document.getElementById("embedded")},easyXDM.transport.HashTransport,"test easyXDM.transport.HashTransport using polling")
-		,createTransportBehaviorTest({local: "../hash.html",remote: _remoteUrl + "test_transport.html"},easyXDM.transport.HashTransport,"test easyXDM.transport.HashTransport using onresize")
-		,createTransportBehaviorTest({local: window,remote: _remoteUrl + "test_transport.html"},easyXDM.transport.HashTransport,"test easyXDM.transport.HashTransport using parent")
-		,createTransportBehaviorTest({readyAfter: 1000,local: "../changes.txt",remote: _remoteUrl + "test_transport.html"},easyXDM.transport.HashTransport,"test easyXDM.transport.HashTransport using readyAfter","This can fail in some modern browsers like Firefox, but this is OK as it is only needed for older browsers like IE6/IE7.")
-		,createTransportBehaviorTest({local: "../hash.html",remote: _remoteUrl + "test_transport.html"},easyXDM.transport.PostMessageTransport,"test easyXDM.transport.PostMessageTransport","This will fail in older browsers like IE6/IE7 as these do not support the postMessage interface.")
-		,createTransportBehaviorTest({local: "../hash.html",remote: _remoteUrl + "test_transport.html"},easyXDM.transport.BestAvailableTransport,"test easyXDM.transport.BestAvailableTransport")
-		,createTransportBehaviorTest({local: "../hash.html",remote: _remoteUrl + "test_transport.html?a=b&c=d"},easyXDM.transport.BestAvailableTransport,"test easyXDM.transport.BestAvailableTransport with query parameters")
-		, {
+    }, createTransportBehaviorTest({
+        local: "../hash.html",
+        remote: _remoteUrl + "test_transport.html",
+        remoteHelper: _remoteUrl + "../hash.html",
+        container: document.getElementById("embedded")
+    }, easyXDM.transport.NameTransport, "test easyXDM.transport.NameTransport", "This can fail in some modern browsers like Firefox, but this is OK as it is only needed for older browsers like IE6/IE7."), createTransportBehaviorTest({
+        local: "../hash.html",
+        remote: _remoteUrl + "test_transport.html",
+        container: document.getElementById("embedded")
+    }, easyXDM.transport.HashTransport, "test easyXDM.transport.HashTransport using polling"), createTransportBehaviorTest({
+        local: "../hash.html",
+        remote: _remoteUrl + "test_transport.html"
+    }, easyXDM.transport.HashTransport, "test easyXDM.transport.HashTransport using onresize"), createTransportBehaviorTest({
+        local: window,
+        remote: _remoteUrl + "test_transport.html"
+    }, easyXDM.transport.HashTransport, "test easyXDM.transport.HashTransport using parent"), createTransportBehaviorTest({
+        readyAfter: 1000,
+        local: "../changes.txt",
+        remote: _remoteUrl + "test_transport.html"
+    }, easyXDM.transport.HashTransport, "test easyXDM.transport.HashTransport using readyAfter", "This can fail in some modern browsers like Firefox, but this is OK as it is only needed for older browsers like IE6/IE7."), createTransportBehaviorTest({
+        local: "../hash.html",
+        remote: _remoteUrl + "test_transport.html"
+    }, easyXDM.transport.PostMessageTransport, "test easyXDM.transport.PostMessageTransport", "This will fail in older browsers like IE6/IE7 as these do not support the postMessage interface."), createTransportBehaviorTest({
+        local: "../hash.html",
+        remote: _remoteUrl + "test_transport.html"
+    }, easyXDM.transport.BestAvailableTransport, "test easyXDM.transport.BestAvailableTransport"), createTransportBehaviorTest({
+        local: "../hash.html",
+        remote: _remoteUrl + "test_transport.html?a=b&c=d"
+    }, easyXDM.transport.BestAvailableTransport, "test easyXDM.transport.BestAvailableTransport with query parameters"), {
         name: "test easyXDM.Interface",
-        setUp: function() {
+        setUp: function(){
             this.expectedMessage = "6abcd1234";
         },
         steps: [{
