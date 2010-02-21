@@ -1,5 +1,5 @@
 /*jslint evil: true, browser: true, immed: true, passfail: true, undef: true, newcap: true*/
-/*global easyXDM, window, escape, unescape */
+/*global easyXDM, window, escape, unescape, JSON */
 
 
 function MessageMarshaller(messageMaxSize) {
@@ -8,18 +8,19 @@ function MessageMarshaller(messageMaxSize) {
   this.message_id_counter = 0;
 	this.bigMessages = {};
 	
-	if(messageMaxSize == undefined) {
+	if(typeof messageMaxSize === "undefined") {
 		messageMaxSize = 1500;
 	}
   
   this.addMessage = function(message) {
+  	var toSend;
 		if(message.length > messageMaxSize) {
 			var bmi = this.message_id_counter++;
 			var start = 0;
 			while(start < message.length) {
 				var slice = message.slice(start,start+messageMaxSize);
 				
-				var toSend = {id:this.message_id_counter++,data:slice,big_message_id:bmi};
+				toSend = {id:this.message_id_counter++,data:slice,big_message_id:bmi};
 			
 				this.messages.push(toSend);
 				start += messageMaxSize;
@@ -28,18 +29,18 @@ function MessageMarshaller(messageMaxSize) {
 			this.messages.push({id:this.message_id_counter++,data:"",big_message_id:bmi,done:true});
 			
 		} else {
-			var toSend = {id:this.message_id_counter++,data:message};
+			toSend = {id:this.message_id_counter++,data:message};
     	this.messages.push(toSend);
 		}
   };
   
   this.getString = function(max_string_length) {
     // Default to 1900
-    if(max_string_length == undefined) {
+    if(typeof max_string_length === "undefined") {
       max_string_length = 1900;
     }
     
-    var toReturn = {last_read:this.last_read,messages:[]}
+    var toReturn = {last_read:this.last_read,messages:[]};
     for(var i = 0; i < this.messages.length; i++) {
       // Add a message to send if we are not over the limit
       if(escape(JSON.stringify(toReturn)).length < max_string_length) {
@@ -63,15 +64,15 @@ function MessageMarshaller(messageMaxSize) {
 	};
   
   this.remove_messages_with_id_less_or_equal = function(id) {
-    
+    var i;
     var idsToRemove = [];
-    for(var i = 0; i < this.messages.length; i++) {
+    for(i = 0; i < this.messages.length; i++) {
       if(this.messages[i].id <= id) {
         idsToRemove.push(this.messages[i].id);
       }
     }
     
-    for(var i = 0; i < idsToRemove.length; i++) {
+    for(i = 0; i < idsToRemove.length; i++) {
 			for(var j = 0; j < this.messages.length; j++) {
 	      if(this.messages[j].id == idsToRemove[i]) {
 					this.messages.splice(j,1);
@@ -81,20 +82,21 @@ function MessageMarshaller(messageMaxSize) {
   };
   
   this.read = function(data_to_read) {
+  	var i;
     var incoming_messages = JSON.parse(unescape(data_to_read));
     this.remove_messages_with_id_less_or_equal(incoming_messages.last_read);
     
 		// Get the messages
     var toReturn = [];
-    for(var i = 0; i < incoming_messages.messages.length; i++) {
+    for(i = 0; i < incoming_messages.messages.length; i++) {
       if(incoming_messages.messages[i].id > this.last_read) {
-				if(incoming_messages.messages[i].big_message_id != undefined) {				
+				if(typeof incoming_messages.messages[i].big_message_id !== "undefined") {				
 					if(incoming_messages.messages[i].done) {
 						this.bigMessages[incoming_messages.messages[i].big_message_id] += incoming_messages.messages[i].data;
 						toReturn.push(this.bigMessages[incoming_messages.messages[i].big_message_id]);
 						delete this.bigMessages[incoming_messages.messages[i].big_message_id];
 					} else {
-						if(this.bigMessages[incoming_messages.messages[i].big_message_id] == undefined) {
+						if(typeof this.bigMessages[incoming_messages.messages[i].big_message_id] === "undefined") {
 							this.bigMessages[incoming_messages.messages[i].big_message_id] = "";
 						}
 						this.bigMessages[incoming_messages.messages[i].big_message_id] += incoming_messages.messages[i].data;
@@ -107,7 +109,7 @@ function MessageMarshaller(messageMaxSize) {
     }
     
 		// Update last_read
-		for(var i = 0; i < incoming_messages.messages.length; i++) {
+		for(i = 0; i < incoming_messages.messages.length; i++) {
       if(incoming_messages.messages[i].id > this.last_read) {
         this.last_read = incoming_messages.messages[i].id;
       }
@@ -424,7 +426,7 @@ easyXDM.transport = {
               // We are referencing the parent window
               _callerWindow.location = srcValue;
           }
-				};
+				}
 
 
         /**

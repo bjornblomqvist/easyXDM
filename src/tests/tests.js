@@ -1,5 +1,5 @@
 /*jslint evil: true, browser: true, immed: true, passfail: true, undef: true, newcap: true*/
-/*global easyTest, easyXDM, window*/
+/*global easyTest, easyXDM, window, JSON*/
 var _remoteUrl = location.href.substring(0, location.href.lastIndexOf("/") + 1);
 if (_remoteUrl.indexOf("easyxdm.net") !== -1) {
     _remoteUrl = _remoteUrl.replace("easyxdm.net", "provider.easyxdm.net");
@@ -72,7 +72,7 @@ function createTransportBehaviorTest(config,TransportClass,testName,failureMessa
 	
 					
 							// Create a big message
-							var bigMessage = ""
+							var bigMessage = "";
 							for(var i = 0; i < 20000; i++) {
 								bigMessage += "a";
 							}
@@ -89,7 +89,7 @@ function createTransportBehaviorTest(config,TransportClass,testName,failureMessa
               return ((document.getElementsByTagName("iframe").length === 0));
           }
       }]
-  }
+  };
 
 	if(failureMessage) {
 		toReturn.failedMessage = failureMessage;
