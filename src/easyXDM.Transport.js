@@ -125,6 +125,7 @@ easyXDM.transport = {
     /**
      * @class easyXDM.transport.BestAvailableTransport
      * BestAvailableTransport is a transport class that uses the best transport available.<br/>
+     * It does not know anything about the internals of the underlying transports that are used, only the prerequisites needed.
      * This class will first try to use the PostMessageTransport<br/>
      * then the NameTransport if the <code>remoteHelper</code> parameter is set,<br/>
      * and at last the HashTransport.<br/>
@@ -135,7 +136,7 @@ easyXDM.transport = {
      * @namespace easyXDM.transport
      */
     BestAvailableTransport: function(config, onReady){
-        // #ifdef debug
+        // #ifdef debug	
         easyXDM.Debug.trace("easyXDM.transport.BestAvailableTransport.constructor");
         // #endif
         // If no protocol is set then it means this is the host
@@ -645,9 +646,15 @@ easyXDM.transport.NameTransport = function(config, onReady){
     if (isHost) {
         // Register the callback
         easyXDM.Fn.set(config.channel, function(message){
+            // #ifdef debug
+            easyXDM.Debug.trace("got initial message " + message);
+            // #endif
             if (isHost && message === "ready") {
                 // Replace the handler
                 easyXDM.Fn.set(config.channel, function(message){
+                    // #ifdef debug
+                    easyXDM.Debug.trace("got message " + message);
+                    // #endif
                     config.onMessage(message, remoteOrigin);
                 });
                 _onReady();
@@ -686,7 +693,7 @@ easyXDM.transport.NameTransport = function(config, onReady){
         // #ifdef debug
         easyXDM.Debug.trace("sending message '" + message + "' to " + remoteOrigin);
         // #endif
-        callerWindow.name = message;
+        easyXDM.transport.NameTransport.message = message;
         if (isHost) {
             // #ifdef debug
             easyXDM.Debug.trace("navigating to '" + config.remoteHelper + "#_3" + encodeURIComponent(remoteUrl + "#" + config.channel) + "'");
