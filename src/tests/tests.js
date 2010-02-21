@@ -8,6 +8,7 @@ if (_remoteUrl.indexOf("localhost") !== -1) {
     _remoteUrl = _remoteUrl.replace("localhost", "127.0.0.1");
 }
 
+
 var channelId = 0;
 function createTransportBehaviorTest(config,TransportClass,testName,failureMessage) {
 	
@@ -45,15 +46,15 @@ function createTransportBehaviorTest(config,TransportClass,testName,failureMessa
           run: function(){
 							var recivedMessages = 0;
 							var scope = this;
-							config.onMessage = function(message, origin) {  if(scope.expectedMessage === message) {recivedMessages++;} if(recivedMessages == 50) { scope.notifyResult(true);} };
-              for(var i = 0; i < 50; i++) {
-								this.transport.postMessage(this.expectedMessage);
+							config.onMessage = function(message, origin) { recivedMessages++; if(recivedMessages == 10) { scope.notifyResult(true);} };
+              for(var i = 0; i < 10; i++) {
+								this.transport.postMessage("droped ? "+i);
 							}
           }
       },
 			{
           name: "check that messages arive in order",
-          timeout: 5000,
+          timeout: 1000,
           run: function(){
 							var recivedMessages = [];
 							var sentMessage  = [];
@@ -66,14 +67,14 @@ function createTransportBehaviorTest(config,TransportClass,testName,failureMessa
           }
       },{
           name: "send big message",
-          timeout: 5000,
+          timeout: 10000,
           run: function(){
 	
 					
 							// Create a big message
 							var bigMessage = ""
-							for(var i = 0; i < 5000; i++) {
-								bigMessage += ""+i;
+							for(var i = 0; i < 20000; i++) {
+								bigMessage += "a";
 							}
 							
 							var scope = this;
@@ -174,7 +175,7 @@ function runTests(){
 		,createTransportBehaviorTest({local: "../hash.html",remote: _remoteUrl + "test_transport.html?a=b&c=d"},easyXDM.transport.BestAvailableTransport,"test easyXDM.transport.BestAvailableTransport with query parameters")
 		, {
         name: "test easyXDM.Interface",
-        setUp: function(){
+        setUp: function() {
             this.expectedMessage = "6abcd1234";
         },
         steps: [{
