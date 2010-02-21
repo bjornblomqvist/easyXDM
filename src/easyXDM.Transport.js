@@ -1,7 +1,127 @@
 /*jslint evil: true, browser: true, immed: true, passfail: true, undef: true, newcap: true*/
 /*global easyXDM, window, escape, unescape */
 
+
+function MessageMarshaller(messageMaxSize) {
+  this.messages = [];
+  this.last_read = -1;
+  this.message_id_counter = 0;
+	this.bigMessages = {};
+	
+	if(messageMaxSize == undefined) {
+		messageMaxSize = 1500;
+	}
+  
+  this.addMessage = function(message) {
+		if(message.length > messageMaxSize) {
+			var bmi = this.message_id_counter++;
+			var start = 0;
+			while(start < message.length) {
+				var slice = message.slice(start,start+messageMaxSize);
+				
+				var toSend = {id:this.message_id_counter++,data:slice,big_message_id:bmi};
+			
+				this.messages.push(toSend);
+				start += messageMaxSize;
+			}
+			
+			this.messages.push({id:this.message_id_counter++,data:"",big_message_id:bmi,done:true});
+			
+		} else {
+			var toSend = {id:this.message_id_counter++,data:message};
+    	this.messages.push(toSend);
+		}
+  };
+  
+  this.getString = function(max_string_length) {
+    // Default to 1900
+    if(max_string_length == undefined) {
+      max_string_length = 1900;
+    }
+    
+    var toReturn = {last_read:this.last_read,messages:[]}
+    for(var i = 0; i < this.messages.length; i++) {
+      // Add a message to send if we are not over the limit
+      if(escape(JSON.stringify(toReturn)).length < max_string_length) {
+        toReturn.messages.push(this.messages[i]);
+      } else {
+        toReturn.messages.pop();
+        return escape(JSON.stringify(toReturn));
+      }
+    }
+
+		if(escape(JSON.stringify(toReturn)).length < max_string_length) {
+      return escape(JSON.stringify(toReturn));
+    } else {
+      toReturn.messages.pop();
+      return escape(JSON.stringify(toReturn));
+    }
+  };
+
+	this.hasUnreadMessages = function() {
+		return messages.length > 0;
+	};
+  
+  this.remove_messages_with_id_less_or_equal = function(id) {
+    
+    var idsToRemove = [];
+    for(var i = 0; i < this.messages.length; i++) {
+      if(this.messages[i].id <= id) {
+        idsToRemove.push(this.messages[i].id);
+      }
+    }
+    
+    for(var i = 0; i < idsToRemove.length; i++) {
+			for(var j = 0; j < this.messages.length; j++) {
+	      if(this.messages[j].id == idsToRemove[i]) {
+					this.messages.splice(j,1);
+	      }
+	    }
+    }
+  };
+  
+  this.read = function(data_to_read) {
+    var incoming_messages = JSON.parse(unescape(data_to_read));
+    this.remove_messages_with_id_less_or_equal(incoming_messages.last_read);
+    
+		// Get the messages
+    var toReturn = [];
+    for(var i = 0; i < incoming_messages.messages.length; i++) {
+      if(incoming_messages.messages[i].id > this.last_read) {
+				if(incoming_messages.messages[i].big_message_id != undefined) {				
+					if(incoming_messages.messages[i].done) {
+						this.bigMessages[incoming_messages.messages[i].big_message_id] += incoming_messages.messages[i].data;
+						toReturn.push(this.bigMessages[incoming_messages.messages[i].big_message_id]);
+						delete this.bigMessages[incoming_messages.messages[i].big_message_id];
+					} else {
+						if(this.bigMessages[incoming_messages.messages[i].big_message_id] == undefined) {
+							this.bigMessages[incoming_messages.messages[i].big_message_id] = "";
+						}
+						this.bigMessages[incoming_messages.messages[i].big_message_id] += incoming_messages.messages[i].data;
+					}
+					
+				} else {
+					toReturn.push(incoming_messages.messages[i].data);
+				}
+      }
+    }
+    
+		// Update last_read
+		for(var i = 0; i < incoming_messages.messages.length; i++) {
+      if(incoming_messages.messages[i].id > this.last_read) {
+        this.last_read = incoming_messages.messages[i].id;
+      }
+    }
+		
+    
+    return toReturn;
+  };
+  
+}
+
+
 easyXDM.transport = {
+	
     /**
      * @class easyXDM.transport.BestAvailableTransport
      * BestAvailableTransport is a transport class that uses the best transport available.<br/>
@@ -243,6 +363,7 @@ easyXDM.transport = {
         var _timer, pollInterval = config.interval || 300, usePolling = false, useParent = false, useResize = true;
         var _lastMsg = "#" + config.channel, _msgNr = 0, _listenerWindow, _callerWindow;
         var _remoteUrl, _remoteOrigin = easyXDM.Url.getLocation(config.remote);
+				var _messageMarshaller = new MessageMarshaller();
         
         if (isHost) {
             var parameters = {
@@ -283,19 +404,51 @@ easyXDM.transport = {
             easyXDM.Debug.trace("using current window as " + (config.local ? "listenerWindow" : "callerWindow"));
         }
         // #endif
+
+
+				function _updateHash() {
+					
+					var hashValue = _messageMarshaller.getString();
+					var srcValue = 	_remoteUrl + "#" + (_msgNr++) + "_" + encodeURIComponent(hashValue);
+					
+					if (isHost || !useParent) {
+              // We are referencing an iframe
+							
+              _callerWindow.src = srcValue;
+              if (useResize) {
+                  _callerWindow.width = _callerWindow.width > 75 ? 50 : 100;
+              }
+          }
+          else {
+              // We are referencing the parent window
+              _callerWindow.location = srcValue;
+          }
+				};
+
+
         /**
          * Checks location.hash for a new message and relays this to the receiver.
          * @private
          */
         function _checkForMessage(){
             try {
-                if (_listenerWindow.location.hash && _listenerWindow.location.hash != _lastMsg) {
-                    _lastMsg = _listenerWindow.location.hash;
+								var currentHash = _listenerWindow.location.hash;
+                if (currentHash && currentHash != _lastMsg) {
+                    _lastMsg = currentHash;
                     // #ifdef debug
                     easyXDM.Debug.trace("received message '" + _lastMsg + "' from " + _remoteOrigin);
-                    // #endif
-                    config.onMessage(decodeURIComponent(_lastMsg.substring(_lastMsg.indexOf("_") + 1)), _remoteOrigin);
+                    // #endif	
+
+										var hashValue = decodeURIComponent(_lastMsg.substring(_lastMsg.indexOf("_") + 1));
+										var messages = _messageMarshaller.read(hashValue);
+										
+										for(var i = 0; i < messages.length; i++) {
+											easyXDM.Debug.trace("onMessage for message "+messages[i]);
+											config.onMessage(messages[i], _remoteOrigin);
+										}
                 }
+								// We update the hash to inform the other side that we have read som messages
+								_updateHash();
             } 
             catch (ex) {
                 // #ifdef debug
@@ -340,12 +493,18 @@ easyXDM.transport = {
             }
             else {
                 easyXDM.DomHelper.addEventListener(_listenerWindow, "resize", _checkForMessage);
+
+								// Also use a poll thread as resizeing dosent seam to always work, check for droped messages timesout without this
+								_timer = window.setInterval(function(){
+                    _checkForMessage();
+                }, pollInterval);
             }
             if (onReady) {
                 window.setTimeout(onReady, 10);
             }
         }
-        
+       
+
         /** 
          * Sends a message by encoding and placing it in the hash part of _callerWindows url.
          * We include a message number so that identical messages will be read as separate messages.
@@ -355,17 +514,9 @@ easyXDM.transport = {
             // #ifdef debug
             easyXDM.Debug.trace("sending message '" + message + "' to " + _remoteOrigin);
             // #endif
-            if (isHost || !useParent) {
-                // We are referencing an iframe
-                _callerWindow.src = _remoteUrl + "#" + (_msgNr++) + "_" + encodeURIComponent(message);
-                if (useResize) {
-                    _callerWindow.width = _callerWindow.width > 75 ? 50 : 100;
-                }
-            }
-            else {
-                // We are referencing the parent window
-                _callerWindow.location = _remoteUrl + "#" + (_msgNr++) + "_" + encodeURIComponent(message);
-            }
+							
+						_messageMarshaller.addMessage(message);
+						_updateHash();
         };
         
         /**
@@ -375,7 +526,7 @@ easyXDM.transport = {
             // #ifdef debug
             easyXDM.Debug.trace("destroying transport");
             // #endif
-            if (usePolling) {
+            if (_timer) {
                 window.clearInterval(_timer);
             }
             else {
