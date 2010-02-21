@@ -59,7 +59,7 @@ function MessageMarshaller(messageMaxSize) {
   };
 
 	this.hasUnreadMessages = function() {
-		return messages.length > 0;
+		return this.messages.length > 0;
 	};
   
   this.remove_messages_with_id_less_or_equal = function(id) {
