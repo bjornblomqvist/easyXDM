@@ -104,7 +104,7 @@ easyXDM = {
                   * @ignore
                   */
 									if(this.logWindow == undefined) {
-										this.logWindow = window.open('log.html'+location.hash,location.host+"logwindow");
+										this.logWindow = window.open('log.html#'+location.host,location.host+"logwindow");
 									}
 									try {
 	                 	this.logWindow.log(args.join(" "));
