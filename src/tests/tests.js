@@ -503,5 +503,121 @@ function runTests(){
 	                return ((document.getElementsByTagName("iframe").length === 0));
 	            }
 	        }]
+	    },	{
+					name: "MessageMarshaller tests",
+	        steps: [
+					{
+	            name: "Adding messages should result in the getAsString to grow",
+	            run: function(){
+									var messageMarshaller = new easyXDM.wrapper.MessageMarshaller();
+					        var currentString = messageMarshaller.getString(2000);
+					        messageMarshaller.addMessage("This is a test =)");
+					        return currentString.length < messageMarshaller.getString(2000).length;
+	            }
+	        }, {
+	            name: "Limit on getString(200) should not return a string longer than 200",
+	            run: function(){
+	                var messageMarshaller = new easyXDM.wrapper.MessageMarshaller();
+
+					        for(var i = 0; i < 500; i++) {
+					          messageMarshaller.addMessage("This is a test =)");
+					        }
+
+					        return messageMarshaller.getString(200).length <= 200;
+	            }
+	        }, {
+	            name: "Messages should able to move via two marshallers",
+	            run: function(){
+	                var messageMarshaller1 = new easyXDM.wrapper.MessageMarshaller();
+					        var messageMarshaller2 = new easyXDM.wrapper.MessageMarshaller();
+
+					        messageMarshaller1.addMessage("This is a test =)");
+					        return messageMarshaller2.read(messageMarshaller1.getString())[0] == "This is a test =)";
+	            }
+	        }, {
+	            name: "Messages should be removed after read",
+	            run: function(){
+	                 var messageMarshaller1 = new easyXDM.wrapper.MessageMarshaller();
+						        var messageMarshaller2 = new easyXDM.wrapper.MessageMarshaller();
+
+						        messageMarshaller1.addMessage("This is a test =)");
+						        var before = messageMarshaller1.getString();
+						        messageMarshaller2.read(messageMarshaller1.getString());
+						        messageMarshaller1.read(messageMarshaller2.getString());
+
+						        return 	(before != messageMarshaller1.getString()) &&
+						        				(before.length > messageMarshaller1.getString().length);
+	            }
+	        }, {
+	            name: "Should only be able to read a message once",
+	            run: function(){
+	                var messageMarshaller1 = new easyXDM.wrapper.MessageMarshaller();
+					        var messageMarshaller2 = new easyXDM.wrapper.MessageMarshaller();
+
+					        messageMarshaller1.addMessage("This is a test =)");
+					        var firstRead = messageMarshaller2.read(messageMarshaller1.getString());
+					        var secoundRead = messageMarshaller2.read(messageMarshaller1.getString());
+
+					        return firstRead.length != secoundRead.length;
+	            }
+	        }, {
+	            name: "Should come out on the same order the where added",
+	            run: function(){
+	                var messageMarshaller1 = new easyXDM.wrapper.MessageMarshaller();
+					        var messageMarshaller2 = new easyXDM.wrapper.MessageMarshaller();
+
+					        var local = [];
+					        for(var i = 0; i < 5; i++) {
+					          messageMarshaller1.addMessage("This is a test =)"+i);
+					          local.push("This is a test =)"+i);
+					        }
+					        var result = messageMarshaller2.read(messageMarshaller1.getString());
+
+					        return result.join("") == local.join("");
+	            }
+	        }, {
+	            name: "Should come out on the same order the where added",
+	            run: function(){
+	                
+					        var messageMarshaller1 = new easyXDM.wrapper.MessageMarshaller();
+					        var messageMarshaller2 = new easyXDM.wrapper.MessageMarshaller();
+
+					        var local = [];
+					        for(var i = 0; i < 500; i++) {
+					          messageMarshaller1.addMessage(""+i);
+					          local.push(""+i);
+					        }
+
+					        var result = [];
+					        for(var i = 0; i < 50; i++) {
+					          result = result.concat(messageMarshaller2.read(messageMarshaller1.getString()));
+					          messageMarshaller1.read(messageMarshaller2.getString()); // Inform that we have read some messages
+					        }
+
+					        return result.join("") == local.join("");
+	            }
+	        }, {
+	            name: "Should be able to send big messages",
+	            run: function(){
+	                var messageMarshaller1 = new easyXDM.wrapper.MessageMarshaller();
+					        var messageMarshaller2 = new easyXDM.wrapper.MessageMarshaller();
+
+					        // Create a big message
+									var bigMessage = ""
+									for(var i = 0; i < 5000; i++) {
+										bigMessage += ""+i;
+									}
+
+									messageMarshaller1.addMessage(bigMessage);
+
+					        var result = [];
+					        for(var i = 0; i < 50; i++) {
+					          result = result.concat(messageMarshaller2.read(messageMarshaller1.getString()));
+					          messageMarshaller1.read(messageMarshaller2.getString()); // Inform that we have read some messages
+					        }
+
+					        return result[0] == bigMessage;
+	            }
+	        }]
 	    }]);
 }
