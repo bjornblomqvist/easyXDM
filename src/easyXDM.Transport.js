@@ -369,9 +369,7 @@ easyXDM.transport = {
                 if (useResize) {
                     _callerWindow.width = _resize_counter > 500 ? 1 : _resize_counter++;
 										// #ifdef debug
-										if(event != undefined) {
-											easyXDM.Debug.trace("resizing to: "+_listenerWindow.innerWidth);
-										}
+										easyXDM.Debug.trace("resizing to: "+_callerWindow.width);
 										// #endif
                 }
             }
