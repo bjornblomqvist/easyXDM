@@ -105,7 +105,7 @@ easyXDM = {
                   * Use console.info
                   */
 									args.unshift(location.host + ":");
-									console.info.apply(console,arguments);
+									console.info.apply(console,args);
              }
             
         }
