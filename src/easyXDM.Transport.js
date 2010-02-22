@@ -81,7 +81,8 @@ easyXDM.transport = {
         // If no protocol is set then it means this is the host
         var isHost = (typeof easyXDM.Url.Query().xdm_p === "undefined");
         var _callerWindow, _targetOrigin = easyXDM.Url.getLocation(config.remote), _window_onMessageImplementation;
-        
+				this.config = config;        
+
         /**
          * Resolves the origin from the event object
          * @private
@@ -243,6 +244,7 @@ easyXDM.transport = {
         var _timer, pollInterval = config.interval || 300, usePolling = false, useParent = false, useResize = true;
         var _lastMsg = "#" + config.channel, _msgNr = 0, _listenerWindow, _callerWindow;
         var _remoteUrl, _remoteOrigin = easyXDM.Url.getLocation(config.remote);
+				this.config = config;
         
         if (isHost) {
             var parameters = {
@@ -470,6 +472,7 @@ easyXDM.transport.NameTransport = function(config, onReady){
     var callerWindow, remoteWindow, readyCount = 0;
     var remoteOrigin = easyXDM.Url.getLocation(config.remote), remoteUrl;
     config.local = easyXDM.Url.resolveUrl(config.local);
+		this.config = config;
     
     function _onReady(){
         if (isHost) {
