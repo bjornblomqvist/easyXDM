@@ -73,46 +73,41 @@ easyXDM = {
          */
         trace: function(msg){
             // Uses memoizing to cache the implementation
-            var trace;
+
+						var args = [];
+						for(var i = 0; i < arguments.length; i++) {
+							args.push(arguments[i]);
+						}
+
             var el = document.getElementById("log");
             if (el) {
                 /**
-                 * Sets trace to be a function that outputs the messages to the DOMElement with id "log"
-                 * @ignore
-                 * @param {String} msg
+                 * Output the messages to the DOMElement with id "log"
                  */
-                trace = function(msg){
-                    try {
-                        el.appendChild(document.createElement("div")).appendChild(document.createTextNode(location.host + "-" + new Date().valueOf() + ":" + msg));
-                        el.scrollTop = el.scrollHeight;
-                    } 
-                    catch (e) {
-                        //In case we are unloading
-                    }
-                };
+ 
+                 try {
+                     el.appendChild(document.createElement("div")).appendChild(document.createTextNode(location.host + "-" + new Date().valueOf() + ":" + args.join(" ")));
+                     el.scrollTop = el.scrollHeight;
+                 } 
+                 catch (e) {
+                     //In case we are unloading
+                 }
             }
-            else {
-                if (typeof console === "undefined" || typeof console.info === "undefined") {
-                    /**
-                     * Sets trace to be an empty function
-                     * @ignore
-                     */
-                    trace = function(){
-                    };
-                }
-                else {
-                    /**
-                     * Sets trace to be a wrapper around console.info
-                     * @ignore
-                     * @param {String} msg
-                     */
-                    trace = function(msg){
-                        console.info(location.host + ":" + msg);
-                    };
-                }
-            }
-            easyXDM.Debug.trace = trace;
-            easyXDM.Debug.trace(msg);
+            
+            if (typeof console === "undefined" || typeof console.info === "undefined") {
+                 /**
+                  * Do nothing as we have no where to put the log
+                  * @ignore
+                  */
+             }
+             else {
+                 /**
+                  * Use console.info
+                  */
+									args.unshift(location.host + ":");
+									console.info.apply(console,arguments);
+             }
+            
         }
     },
     

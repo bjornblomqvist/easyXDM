@@ -289,7 +289,10 @@ easyXDM.transport = {
          * Checks location.hash for a new message and relays this to the receiver.
          * @private
          */
-        function _checkForMessage(){
+        function _checkForMessage(event){
+						if(event != undefined) {
+							easyXDM.Debug.trace(_listenerWindow.innerWidth);
+						}
             try {
                 if (_listenerWindow.location.hash && _listenerWindow.location.hash != _lastMsg) {
                     _lastMsg = _listenerWindow.location.hash;
@@ -311,7 +314,7 @@ easyXDM.transport = {
          * We delay this so that the the call to createChannel or createTransport will have completed.
          * @private
          */
-        function _onReady(){
+        function _onReady(){	
             if (isHost) {
                 if (useParent) {
                     _listenerWindow = window;
