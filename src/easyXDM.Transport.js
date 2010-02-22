@@ -290,9 +290,11 @@ easyXDM.transport = {
          * @private
          */
         function _checkForMessage(event){
+						// #ifdef debug
 						if(event != undefined) {
-							easyXDM.Debug.trace(_listenerWindow.innerWidth);
+							easyXDM.Debug.trace("Got resize event for: "+_listenerWindow.innerWidth);
 						}
+						// #endif
             try {
                 if (_listenerWindow.location.hash && _listenerWindow.location.hash != _lastMsg) {
                     _lastMsg = _listenerWindow.location.hash;
@@ -366,6 +368,11 @@ easyXDM.transport = {
                 _callerWindow.src = _remoteUrl + "#" + (_msgNr++) + "_" + encodeURIComponent(message);
                 if (useResize) {
                     _callerWindow.width = _resize_counter > 500 ? 1 : _resize_counter++;
+										// #ifdef debug
+										if(event != undefined) {
+											easyXDM.Debug.trace("resizing to: "+_listenerWindow.innerWidth);
+										}
+										// #endif
                 }
             }
             else {
