@@ -353,6 +353,7 @@ easyXDM.transport = {
          * We include a message number so that identical messages will be read as separate messages.
          * @param {String} message The message to send
          */
+				var _resize_counter = 0;
         this.postMessage = function(message){
             // #ifdef debug
             easyXDM.Debug.trace("sending message '" + message + "' to " + _remoteOrigin);
@@ -361,7 +362,7 @@ easyXDM.transport = {
                 // We are referencing an iframe
                 _callerWindow.src = _remoteUrl + "#" + (_msgNr++) + "_" + encodeURIComponent(message);
                 if (useResize) {
-                    _callerWindow.width = _callerWindow.width > 75 ? 50 : 100;
+                    _callerWindow.width = _resize_counter > 500 ? 1 : _resize_counter++;
                 }
             }
             else {
