@@ -7,6 +7,13 @@ if (_remoteUrl.indexOf("easyxdm.net") !== -1) {
 if (_remoteUrl.indexOf("localhost") !== -1) {
     _remoteUrl = _remoteUrl.replace("localhost", "127.0.0.1");
 }
+
+/*
+	Opera changes 127.0.0.1 to localdomain so i use easyxdmhost and easyxdmapi in my hosts file.
+*/
+if (_remoteUrl.indexOf("easyxdmhost") !== -1) {
+    _remoteUrl = _remoteUrl.replace("easyxdmhost", "easyxdmapi");
+}
 var channelId = 0;
 function runTests(){
 
@@ -416,5 +423,85 @@ function runTests(){
                 return ((document.getElementsByTagName("iframe").length === 0));
             }
         }]
-    }]);
+    },		{
+	        name: "test easyXDM.wrapper.MessageQueue wrapping easyXDM.transport.HashTransport using polling",
+	        setUp: function(){
+	            this.expectedMessage = "1abcd1234";
+	        },
+	        steps: [{
+	            name: "onReady is fired",
+	            timeout: 5000,
+	            run: function(){
+	                var scope = this;
+	                this.transport = new easyXDM.wrapper.MessageQueue(easyXDM.transport.HashTransport,{
+	                    channel: "channel" + (channelId++),
+	                    local: "../hash.html",
+	                    remote: _remoteUrl + "test_transport.html?MessageQueue=true",
+	                    onMessage: function(message, origin){
+	                        scope.notifyResult((scope.expectedMessage === message));
+	                    },
+	                    container: document.getElementById("embedded")
+	                }, function(){
+	                    scope.notifyResult(true);
+	                });
+	            }
+	        }, {
+	            name: "message is echoed back",
+	            timeout: 2000,
+	            run: function(){
+	                this.transport.postMessage(this.expectedMessage);
+	            }
+	        },
+					     {
+		          name: "check that messages arive in order",
+		          timeout: 5000,
+		          run: function(){
+		                            var recivedMessages = [];
+		                            var sentMessage  = [];
+		                            var scope = this;
+		                            this.transport.config.onMessage = function(message, origin) {  recivedMessages.push(message); if(recivedMessages.length == 5) { scope.notifyResult(JSON.stringify(recivedMessages) == JSON.stringify(sentMessage));} };
+		              for(var i = 0; i < 5; i++) {
+		                                sentMessage.push(""+i);
+		                                this.transport.postMessage(""+i);
+		                            }
+		          }
+		      },		{
+				          name: "send big message",
+				          timeout: 15000,
+				          run: function(){
+
+
+	                     // Create a big message
+	                     var bigMessage = ""
+	                     for(var i = 0; i < 5000; i++) {
+	                         bigMessage += "a";
+	                     }
+
+	                     var scope = this;
+	                     this.transport.config.onMessage = function(message, origin) { scope.notifyResult((bigMessage === message)); };
+
+	                     this.transport.postMessage(bigMessage);
+				          }
+				      },
+					{
+					          name: "check that no messages are droped",
+					          timeout: 5000,
+					          run: function(){
+					                            var recivedMessages = 0;
+					                            var scope = this;
+					                            this.transport.config.onMessage = function(message, origin) {  if(scope.expectedMessage === message) {recivedMessages++;} if(recivedMessages == 50) { scope.notifyResult(true);} };
+					              for(var i = 0; i < 50; i++) {
+					                                this.transport.postMessage(this.expectedMessage);
+					                            }
+					          }
+					      }
+
+					, {
+	            name: "destroy",
+	            run: function(){
+	                this.transport.destroy();
+	                return ((document.getElementsByTagName("iframe").length === 0));
+	            }
+	        }]
+	    }]);
 }
