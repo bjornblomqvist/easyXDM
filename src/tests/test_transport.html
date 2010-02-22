@@ -25,7 +25,16 @@
         </script>
         <script type="text/javascript">
             var transport;
-            window.onload = function(){
+            window.onload = function() {
+
+                easyXDM.Debug.trace("");
+                easyXDM.Debug.trace("");              
+                easyXDM.Debug.trace("");
+                easyXDM.Debug.trace("");
+                easyXDM.Debug.trace("in onload for ",location.href);
+                easyXDM.Debug.trace("");
+              
+                if(location.href.indexOf('MessageQueue=true') != -1) {
                 transport = new easyXDM.wrapper.MessageQueue(easyXDM.transport.BestAvailableTransport,{
                     local: "../hash.html",
                     onMessage: function(message, origin){
@@ -33,6 +42,15 @@
                         transport.postMessage(message);
                     }
                 });
+                } else {
+                  transport = new easyXDM.transport.BestAvailableTransport({
+                      local: "../hash.html",
+                      onMessage: function(message, origin){
+                          // Echo back the message
+                          transport.postMessage(message);
+                      }
+                  });
+                }
             };
             window.onunload = function(){
                 if (transport) {
