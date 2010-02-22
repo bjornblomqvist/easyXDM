@@ -27,6 +27,14 @@ var easyTest = (function(){
                 el.className = "easyTest_msg";
                 break;
         }
+
+				if (typeof easyXDM !== "undefined" && typeof easyXDM.Debug !== "undefined" && typeof easyXDM.Debug !== "undefined") {
+					easyXDM.Debug.trace("");
+					easyXDM.Debug.trace("---");
+					easyXDM.Debug.trace(msg);
+					easyXDM.Debug.trace("---");
+					easyXDM.Debug.trace("");
+				}
     }
     
     var Assert = {
