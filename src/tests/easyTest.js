@@ -28,16 +28,20 @@ var easyTest = (function(){
                 break;
         }
 
-				if (typeof console !== "undefined" || typeof console.info !== "undefined") {
-					console.info(" ");
-					console.info(" ");
-					console.info(" ");
-					console.info(msg);
-					console.info(" ");
-					console.info(" ");
-					console.info(" ");
-				}
+				_console("<-- "+msg);
     }
+
+		function _console(msg) {
+			if (typeof console !== "undefined" || typeof console.info !== "undefined") {
+				console.info(" ");
+				console.info(" ");
+				console.info(" ");
+				console.info(msg);
+				console.info(" ");
+				console.info(" ");
+				console.info(" ");
+			}
+		}
     
     var Assert = {
         // Type checks
@@ -142,6 +146,7 @@ var easyTest = (function(){
             if (_stepIndex < _steps.length) {
                 // We still have steps to run
                 _step = _steps[_stepIndex];
+								_console("Starting "+_step.name+" --> ");
                 _stepStartedAt = new Date();
                 if (_step.timeout) {
                     // This an asynchronous test
