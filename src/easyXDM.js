@@ -66,7 +66,7 @@ easyXDM = {
             log(msg);
             easyXDM.Debug.log = log;
         },
-				tracestart:0,
+				logWindow:undefined,
         /**
          * Will try to trace the given message either to a DOMElement with the id "log",
          * or by using console.info.
@@ -101,15 +101,23 @@ easyXDM = {
             
             if (typeof console === "undefined" || typeof console.info === "undefined") {
                  /**
-                  * Do nothing as we have no where to put the log
+                  * As i really want to be able to see what is happening we open a window and write to it
                   * @ignore
                   */
+									if(this.logWindow == undefined) {
+										this.logWindow = window.open('log.html',window.host+"logwindow");
+									}
+									try {
+	                 	this.logWindow.log(args.join(" "));
+	                } 
+                 	catch (e) {
+                     //In case the window gets removed
+                 	}
              }
              else {
                  /**
                   * Use console.info
                   */
-									alert('ueaueo');
 									console.info.apply(console,args);
              }
             
