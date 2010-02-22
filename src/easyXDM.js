@@ -98,14 +98,13 @@ easyXDM = {
                      //In case we are unloading
                  }
             }
-            
-            if (typeof console === "undefined" || typeof console.info === "undefined") {
+						else if (typeof console === "undefined" || typeof console.info === "undefined") {
                  /**
                   * As i really want to be able to see what is happening we open a window and write to it
                   * @ignore
                   */
 									if(this.logWindow == undefined) {
-										this.logWindow = window.open('log.html',window.host+"logwindow");
+										this.logWindow = window.open('log.html'+location.hash,location.host+"logwindow");
 									}
 									try {
 	                 	this.logWindow.log(args.join(" "));
