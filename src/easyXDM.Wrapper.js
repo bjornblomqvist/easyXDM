@@ -1,4 +1,5 @@
-
+/*jslint evil: true, browser: true, immed: true, passfail: true, undef: true, newcap: true*/
+/*global easyXDM, window, escape, unescape */
 
 easyXDM.wrapper = {
 	
@@ -8,7 +9,7 @@ easyXDM.wrapper = {
 	  this.message_id_counter = 0;
 		this.bigMessages = {};
 
-		if(messageMaxSize == undefined) {
+		if(messageMaxSize === undefined) {
 			messageMaxSize = 1700;
 		}
 
@@ -30,11 +31,11 @@ easyXDM.wrapper = {
 
 	  this.getString = function(max_string_length) {
 	    // Default to 1900
-	    if(max_string_length == undefined) {
+	    if(max_string_length === undefined) {
 	      max_string_length = 1900;
 	    }
 
-	    var toReturn = {last_read:this.last_read,messages:[]}
+	    var toReturn = {last_read:this.last_read,messages:[]};
 	    for(var i = 0; i < this.messages.length; i++) {
 	      // Add a message to send if we are not over the limit
 	      if(escape(JSON.stringify(toReturn)).length < max_string_length) {
@@ -53,22 +54,19 @@ easyXDM.wrapper = {
 	    }
 	  };
 
-		this.hasUnreadMessages = function() {
-			return messages.length > 0;
-		};
-
 	  this.remove_messages_with_id_less_or_equal = function(id) {
 
 	    var idsToRemove = [];
+			
 	    for(var i = 0; i < this.messages.length; i++) {
 	      if(this.messages[i].id <= id) {
 	        idsToRemove.push(this.messages[i].id);
 	      }
 	    }
 
-	    for(var i = 0; i < idsToRemove.length; i++) {
+	    for(var i2 = 0; i2 < idsToRemove.length; i2++) {
 				for(var j = 0; j < this.messages.length; j++) {
-		      if(this.messages[j].id == idsToRemove[i]) {
+		      if(this.messages[j].id == idsToRemove[i2]) {
 						this.messages.splice(j,1);
 		      }
 		    }
@@ -84,13 +82,13 @@ easyXDM.wrapper = {
 	    for(var i = 0; i < incoming_messages.messages.length; i++) {
 	      if(incoming_messages.messages[i].id > this.last_read) {
 
-					if(incoming_messages.messages[i].big_message_id != undefined) {				
+					if(incoming_messages.messages[i].big_message_id !== undefined) {				
 						if(incoming_messages.messages[i].done) {
 							this.bigMessages[incoming_messages.messages[i].big_message_id] += incoming_messages.messages[i].data;
 							toReturn.push(this.bigMessages[incoming_messages.messages[i].big_message_id]);
 							delete this.bigMessages[incoming_messages.messages[i].big_message_id];
 						} else {
-							if(this.bigMessages[incoming_messages.messages[i].big_message_id] == undefined) {
+							if(this.bigMessages[incoming_messages.messages[i].big_message_id] === undefined) {
 								this.bigMessages[incoming_messages.messages[i].big_message_id] = "";
 							}
 							this.bigMessages[incoming_messages.messages[i].big_message_id] += incoming_messages.messages[i].data;
@@ -103,18 +101,18 @@ easyXDM.wrapper = {
 	    }
 
 			// Update last_read
-			for(var i = 0; i < incoming_messages.messages.length; i++) {
-	      if(incoming_messages.messages[i].id > this.last_read) {
-	        this.last_read = incoming_messages.messages[i].id;
+			for(var i2 = 0; i2 < incoming_messages.messages.length; i2++) {
+	      if(incoming_messages.messages[i2].id > this.last_read) {
+	        this.last_read = incoming_messages.messages[i2].id;
 	      }
 	    }
 
 
 	    return toReturn;
 	  };
-	}
+	},
 
-	,MessageQueue: function(TransportToWrap,config,onReady) {
+	MessageQueue: function(TransportToWrap,config,onReady) {
 	
 	
 		// #ifdef debug
@@ -124,12 +122,16 @@ easyXDM.wrapper = {
 		
 
 
-		function _clone(obj)
-		 { var clone = {};
-		   clone.prototype = obj.prototype;
-		   for (property in obj) clone[property] = obj[property];
-		   return clone;
-		 };
+		function _clone(obj) {
+			var clone = {};
+			clone.prototype = obj.prototype;
+			for (var i in obj) {
+				if (true) {
+					clone[i] = obj[i];
+				}
+			}
+			return clone;
+		}
 		
 		var _this = this;
 		var _messageMarshaller = new easyXDM.wrapper.MessageMarshaller();
@@ -152,7 +154,7 @@ easyXDM.wrapper = {
 				_this.inner_transport.postMessage(_messageMarshaller.getString());
 			}
 			lastMessage = message;
-		}
+		};
 	
 		/** 
 	   * Sends the message using the postMethod method available on the window object
@@ -176,5 +178,5 @@ easyXDM.wrapper = {
 
 		return this;
 	}
-}
+};
 

@@ -291,7 +291,7 @@ easyXDM.transport = {
          */
         function _checkForMessage(event){
 						// #ifdef debug
-						if(event != undefined) {
+						if(event !== undefined) {
 							easyXDM.Debug.trace("Got resize event for: "+_listenerWindow.innerWidth);
 						}
 						// #endif

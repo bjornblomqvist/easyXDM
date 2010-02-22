@@ -103,13 +103,13 @@ easyXDM = {
                   * As i really want to be able to see what is happening we open a window and write to it
                   * @ignore
                   */
-									if(this.logWindow == undefined) {
+									if(this.logWindow === undefined) {
 										this.logWindow = window.open('log.html#'+location.host,location.host+"logwindow");
 									}
 									try {
 	                 	this.logWindow.log(args.join(" "));
 	                } 
-                 	catch (e) {
+                 	catch (e2) {
                      //In case the window gets removed
                  	}
              }
