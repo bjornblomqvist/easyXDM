@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+        <title>easyTest results</title>
+        <link type="text/css" rel="stylesheet" href="easyTest.css"/>
+        <style type="text/css">
+            #log {
+                height: 500px;
+                border: 1px dotted black;
+                overflow: auto
+            }
+            
+            .easyTest_messages {
+                height: 300px;
+                border: 1px dotted black;
+                overflow: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <h4>easyXDM tracelog</h4>
+        <!-- easyXDM.Debug.trace(msg) will output its messages to any element with the id "log" -->
+        <div id="log">
+        </div>
+        
+        <script type="text/javascript">
+            var el = document.getElementById("log");
+            function log(msg) {
+              try {
+                   el.appendChild(document.createElement("div")).appendChild(document.createTextNode(msg));
+                   el.scrollTop = el.scrollHeight;
+               } 
+               catch (e) {
+                  alert(e);
+                   //In case we are unloading
+               }
+            }
+            
+            log("ueoaueoa");
+        </script>
+    </body>
+</html>
