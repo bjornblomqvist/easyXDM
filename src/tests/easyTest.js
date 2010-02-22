@@ -101,10 +101,10 @@ var easyTest = (function(){
             
             var times = testsetTime + "ms, " + testTime + "ms, " + stepTime + "ms - ";
             if (result) {
-                _log(times + name + " succeeded! " + (reason || ""), MessageType.Success);
+                _log(times + "\""+ name + "\" succeeded! " + (reason || ""), MessageType.Success);
             }
             else {
-                _log(times + name + " failed! " + (reason || ""), MessageType.Error);
+                _log(times + "\""+ name + "\" failed! " + (reason || ""), MessageType.Error);
                 if (test.failedMessage) {
                     _log(test.failedMessage, MessageType.Info);
                 }
@@ -146,7 +146,7 @@ var easyTest = (function(){
             if (_stepIndex < _steps.length) {
                 // We still have steps to run
                 _step = _steps[_stepIndex];
-								_console("Starting "+_step.name+" --> ");
+								_console("Starting \""+_step.name+"\" --> ");
                 _stepStartedAt = new Date();
                 if (_step.timeout) {
                     // This an asynchronous test
