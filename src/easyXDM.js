@@ -66,19 +66,31 @@ easyXDM = {
             log(msg);
             easyXDM.Debug.log = log;
         },
+				tracestart:0,
         /**
          * Will try to trace the given message either to a DOMElement with the id "log",
          * or by using console.info.
          * @param {String} msg The message to trace
          */
         trace: function(msg){
-            // Uses memoizing to cache the implementation
+            
+						if(this.tracestart == 0) {
+							console.debug("Settintg trace start time");
+							this.tracestart = new Date().getTime();
+						} 
+						
 
+						/*
+						 *	Move the arguments to an array so we can call unshift and join
+						 */
 						var args = [];
 						for(var i = 0; i < arguments.length; i++) {
 							args.push(arguments[i]);
 						}
-
+						
+						// Add the time and domain
+						args.unshift((new Date().getTime()+"").slice(-6)+" "+ location.host  + ":\t");
+						
             var el = document.getElementById("log");
             if (el) {
                 /**
@@ -86,7 +98,7 @@ easyXDM = {
                  */
  
                  try {
-                     el.appendChild(document.createElement("div")).appendChild(document.createTextNode(location.host + "-" + new Date().valueOf() + ":" + args.join(" ")));
+                     el.appendChild(document.createElement("div")).appendChild(document.createTextNode(args.join(" ")));
                      el.scrollTop = el.scrollHeight;
                  } 
                  catch (e) {
@@ -104,7 +116,6 @@ easyXDM = {
                  /**
                   * Use console.info
                   */
-									args.unshift(location.host + ":");
 									console.info.apply(console,args);
              }
             
