@@ -73,14 +73,7 @@ easyXDM = {
          * @param {String} msg The message to trace
          */
         trace: function(msg){
-            
-						if(this.tracestart == 0) {
-							console.debug("Settintg trace start time");
-							this.tracestart = new Date().getTime();
-						} 
-						
-
-						/*
+            /*
 						 *	Move the arguments to an array so we can call unshift and join
 						 */
 						var args = [];
@@ -116,6 +109,7 @@ easyXDM = {
                  /**
                   * Use console.info
                   */
+									alert('ueaueo');
 									console.info.apply(console,args);
              }
             

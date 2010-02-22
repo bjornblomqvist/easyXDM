@@ -32,7 +32,7 @@ var easyTest = (function(){
     }
 
 		function _console(msg) {
-			if (typeof console !== "undefined" || typeof console.info !== "undefined") {
+			if (typeof console !== "undefined" && typeof console.info !== "undefined") {
 				console.info(" ");
 				console.info(" ");
 				console.info(" ");
