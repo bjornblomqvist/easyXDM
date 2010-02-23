@@ -509,7 +509,7 @@ function runTests(){
 					{
 	            name: "Adding messages should result in the getAsString to grow",
 	            run: function(){
-									var messageMarshaller = new easyXDM.wrapper.MessageMarshaller();
+									var messageMarshaller = new easyXDM.wrapper.util.MessageMarshaller();
 					        var currentString = messageMarshaller.getString(2000);
 					        messageMarshaller.addMessage("This is a test =)");
 					        return currentString.length < messageMarshaller.getString(2000).length;
@@ -517,7 +517,7 @@ function runTests(){
 	        }, {
 	            name: "Limit on getString(200) should not return a string longer than 200",
 	            run: function(){
-	                var messageMarshaller = new easyXDM.wrapper.MessageMarshaller();
+	                var messageMarshaller = new easyXDM.wrapper.util.MessageMarshaller();
 
 					        for(var i = 0; i < 500; i++) {
 					          messageMarshaller.addMessage("This is a test =)");
@@ -528,8 +528,8 @@ function runTests(){
 	        }, {
 	            name: "Messages should able to move via two marshallers",
 	            run: function(){
-	                var messageMarshaller1 = new easyXDM.wrapper.MessageMarshaller();
-					        var messageMarshaller2 = new easyXDM.wrapper.MessageMarshaller();
+	                var messageMarshaller1 = new easyXDM.wrapper.util.MessageMarshaller();
+					        var messageMarshaller2 = new easyXDM.wrapper.util.MessageMarshaller();
 
 					        messageMarshaller1.addMessage("This is a test =)");
 					        return messageMarshaller2.read(messageMarshaller1.getString())[0] == "This is a test =)";
@@ -537,8 +537,8 @@ function runTests(){
 	        }, {
 	            name: "Messages should be removed after read",
 	            run: function(){
-	                 var messageMarshaller1 = new easyXDM.wrapper.MessageMarshaller();
-						        var messageMarshaller2 = new easyXDM.wrapper.MessageMarshaller();
+	                 var messageMarshaller1 = new easyXDM.wrapper.util.MessageMarshaller();
+						        var messageMarshaller2 = new easyXDM.wrapper.util.MessageMarshaller();
 
 						        messageMarshaller1.addMessage("This is a test =)");
 						        var before = messageMarshaller1.getString();
@@ -551,8 +551,8 @@ function runTests(){
 	        }, {
 	            name: "Should only be able to read a message once",
 	            run: function(){
-	                var messageMarshaller1 = new easyXDM.wrapper.MessageMarshaller();
-					        var messageMarshaller2 = new easyXDM.wrapper.MessageMarshaller();
+	                var messageMarshaller1 = new easyXDM.wrapper.util.MessageMarshaller();
+					        var messageMarshaller2 = new easyXDM.wrapper.util.MessageMarshaller();
 
 					        messageMarshaller1.addMessage("This is a test =)");
 					        var firstRead = messageMarshaller2.read(messageMarshaller1.getString());
@@ -563,8 +563,8 @@ function runTests(){
 	        }, {
 	            name: "Should come out on the same order the where added",
 	            run: function(){
-	                var messageMarshaller1 = new easyXDM.wrapper.MessageMarshaller();
-					        var messageMarshaller2 = new easyXDM.wrapper.MessageMarshaller();
+	                var messageMarshaller1 = new easyXDM.wrapper.util.MessageMarshaller();
+					        var messageMarshaller2 = new easyXDM.wrapper.util.MessageMarshaller();
 
 					        var local = [];
 					        for(var i = 0; i < 5; i++) {
@@ -579,8 +579,8 @@ function runTests(){
 	            name: "Should come out on the same order the where added",
 	            run: function(){
 	                
-					        var messageMarshaller1 = new easyXDM.wrapper.MessageMarshaller();
-					        var messageMarshaller2 = new easyXDM.wrapper.MessageMarshaller();
+					        var messageMarshaller1 = new easyXDM.wrapper.util.MessageMarshaller();
+					        var messageMarshaller2 = new easyXDM.wrapper.util.MessageMarshaller();
 
 					        var local = [];
 					        for(var i = 0; i < 500; i++) {
@@ -599,8 +599,8 @@ function runTests(){
 	        }, {
 	            name: "Should be able to send big messages",
 	            run: function(){
-	                var messageMarshaller1 = new easyXDM.wrapper.MessageMarshaller();
-					        var messageMarshaller2 = new easyXDM.wrapper.MessageMarshaller();
+	                var messageMarshaller1 = new easyXDM.wrapper.util.MessageMarshaller();
+					        var messageMarshaller2 = new easyXDM.wrapper.util.MessageMarshaller();
 
 					        // Create a big message
 									var bigMessage = ""
