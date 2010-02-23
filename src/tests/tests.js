@@ -433,7 +433,8 @@ function runTests(){
 	            timeout: 5000,
 	            run: function(){
 	                var scope = this;
-	                this.transport = new easyXDM.wrapper.MessageQueue(easyXDM.transport.HashTransport,{
+	                this.transport = new easyXDM.wrapper.MessageQueue({
+											messageQueue_inner: easyXDM.transport.HashTransport,
 	                    channel: "channel" + (channelId++),
 	                    local: "../hash.html",
 	                    remote: _remoteUrl + "test_transport.html?MessageQueue=true",

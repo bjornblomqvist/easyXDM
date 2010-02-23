@@ -4,14 +4,17 @@
 
 easyXDM.wrapper = {
 	
-	MessageQueue: function(TransportToWrap,config,onReady) {
-	
+	MessageQueue: function(config,onReady) {
 	
 		// #ifdef debug
 	  easyXDM.Debug.trace("easyXDM.wrapper.MessageQueue.constructor");
 	  // #endif
 	
+		if(config.messageQueue_inner === undefined) {
+			throw "When using MessageQueue you must define \"config.messageQueue_inner\""
+		}
 		
+		TransportToWrap = config.messageQueue_inner;
 
 		
 		var _this = this;

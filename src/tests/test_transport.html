@@ -35,7 +35,8 @@
                 easyXDM.Debug.trace("");
               
                 if(location.href.indexOf('MessageQueue=true') != -1) {
-                transport = new easyXDM.wrapper.MessageQueue(easyXDM.transport.BestAvailableTransport,{
+                transport = new easyXDM.wrapper.MessageQueue({
+                    messageQueue_inner: easyXDM.transport.BestAvailableTransport,
                     local: "../hash.html",
                     onMessage: function(message, origin){
                         // Echo back the message
