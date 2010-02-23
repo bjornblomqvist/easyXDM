@@ -84,21 +84,27 @@ easyXDM = {
 						// Add the time and domain
 						args.unshift((new Date().getTime()+"").slice(-6)+" "+ location.host  + ":\t");
 						
-            var el = document.getElementById("log");
-            if (el) {
-                /**
-                 * Output the messages to the DOMElement with id "log"
-                 */
- 
-                 try {
-                     el.appendChild(document.createElement("div")).appendChild(document.createTextNode(args.join(" ")));
-                     el.scrollTop = el.scrollHeight;
-                 } 
-                 catch (e) {
-                     //In case we are unloading
-                 }
-            }
-						else if (typeof console === "undefined" || typeof console.info === "undefined") {
+						/*
+						 * Always write to console if we have one
+						 */
+						if (typeof console === "undefined" || typeof console.info === "undefined") {
+							
+								// Fallback is the log window.
+								var el = document.getElementById("log");
+		            if (el) {
+		                /**
+		                 * Output the messages to the DOMElement with id "log"
+		                 */
+
+		                 try {
+		                     el.appendChild(document.createElement("div")).appendChild(document.createTextNode(args.join(" ")));
+		                     el.scrollTop = el.scrollHeight;
+		                 } 
+		                 catch (e) {
+		                     //In case we are unloading
+		                 }
+		            } else {
+							
                  /**
                   * As i really want to be able to see what is happening we open a window and write to it
                   * @ignore
@@ -112,6 +118,7 @@ easyXDM = {
                  	catch (e2) {
                      //In case the window gets removed
                  	}
+								}
              }
              else {
                  /**
