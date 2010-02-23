@@ -70,10 +70,8 @@ easyXDM.wrapper = {
 	      this.inner_transport.destroy();
 	  };
 
-	
 		this.inner_transport = new TransportToWrap(config, onReady);
-	
-
+		
 		return this;
 	}
 };
@@ -87,7 +85,7 @@ easyXDM.wrapper.util = {
 	 * to the other side. Messages are numbered and both ends send over last read message witch is
 	 * used when removing messages from the queue.
    * @constructor
-	 * @param {Integer} messageMaxSize the max size a message can be before we slit it into framgments, defaults to 1700
+	 * @param {Integer} messageMaxSize the max size a message can be before we slit it into framgments, defaults to 3700
    * @namespace easyXDM.wrapper.util
    */
 	MessageMarshaller: function(messageMaxSize) {
@@ -97,7 +95,7 @@ easyXDM.wrapper.util = {
 		this.bigMessages = {};
 
 		if(messageMaxSize === undefined) {
-			messageMaxSize = 1700;
+			messageMaxSize = 3700;
 		}
 
 	  this.addMessage = function(message) {
@@ -117,9 +115,9 @@ easyXDM.wrapper.util = {
 	  };
 
 	  this.getString = function(max_string_length) {
-	    // Default to 1900
+		
 	    if(max_string_length === undefined) {
-	      max_string_length = 1900;
+	      max_string_length = 3900;
 	    }
 
 	    var toReturn = {last_read:this.last_read,messages:[]};
