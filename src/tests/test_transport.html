@@ -35,14 +35,27 @@
                 easyXDM.Debug.trace("");
               
                 if(location.href.indexOf('MessageQueue=true') != -1) {
-                transport = new easyXDM.wrapper.MessageQueue({
-                    messageQueue_inner: easyXDM.transport.BestAvailableTransport,
-                    local: "../hash.html",
-                    onMessage: function(message, origin){
-                        // Echo back the message
-                        transport.postMessage(message);
-                    }
-                });
+                  if(location.href.indexOf('WithValidation=true') != -1) {
+                    transport = new easyXDM.wrapper.WithValidation({
+                        withValidation_inner: easyXDM.wrapper.MessageQueue,
+                        validationCode: Math.random()+"",
+                        messageQueue_inner: easyXDM.transport.BestAvailableTransport,
+                        local: "../hash.html",
+                        onMessage: function(message, origin){
+                            // Echo back the message
+                            transport.postMessage(message);
+                        }
+                    });
+                  } else {
+                    transport = new easyXDM.wrapper.MessageQueue({
+                        messageQueue_inner: easyXDM.transport.BestAvailableTransport,
+                        local: "../hash.html",
+                        onMessage: function(message, origin){
+                            // Echo back the message
+                            transport.postMessage(message);
+                        }
+                    });
+                  }
                 } else {
                   transport = new easyXDM.transport.BestAvailableTransport({
                       local: "../hash.html",

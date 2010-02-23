@@ -36,6 +36,10 @@ easyXDM.wrapper = {
 		var _lastMessageRead = "";
 	
 		config.onMessage = function(message, origin) {
+			
+			// #ifdef debug
+		  easyXDM.Debug.trace("MessageQueue got: "+message);
+		  // #endif
 
 			/*
 			 * Get messages and inform the other side that they
@@ -51,6 +55,9 @@ easyXDM.wrapper = {
 			 * Push out all the messages to the onMessage function
 			 */
 			for(var i = 0; i < messages.length; i++) {
+				// #ifdef debug
+			  easyXDM.Debug.trace("pushing messages to onMessage");
+			  // #endif
 				_this.config.onMessage(messages[i],origin);
 			}
 			
@@ -62,6 +69,10 @@ easyXDM.wrapper = {
 	   * @param {String} message The message to send
 	   */
 	  this.postMessage = function(message) {
+				// #ifdef debug
+			  easyXDM.Debug.trace("MessageQueue adding: "+message);
+			  // #endif
+		
 				_messageMarshaller.addMessage(message);
 	      this.inner_transport.postMessage(_messageMarshaller.getString());
 	  };
@@ -76,7 +87,120 @@ easyXDM.wrapper = {
 		this.inner_transport = new TransportToWrap(config, onReady);
 		
 		return this;
-	}
+	}	,
+	WithValidation: function(config,onReady) {
+
+			// #ifdef debug
+		  easyXDM.Debug.trace("easyXDM.wrapper.WithValidation.constructor");
+		  // #endif
+
+			if(config.withValidation_inner === undefined) {
+				throw "When using WithValidation you must define \"config.withValidation_inner\""
+			}
+			
+			if(config.validationCode === undefined) {
+				throw "When using WithValidation you must define \"config.validationCode\""
+			}
+
+			TransportToWrap = config.withValidation_inner;
+			var _this = this;
+
+
+			/*
+			 * We need to create a copy of the config so that the behaviour
+			 * of letting the user of the transport change the onMessage function 
+			 * at any time is intact.
+			 */
+			this.config = {};
+			this.config.prototype = config.prototype;
+			for (var i in config) {
+				if (true) { this.config[i] = config[i]; } // Had to wrap it in a if statement to make jslint accept it
+			}
+			
+			
+			
+			
+			
+			
+			var validationMessage = "validation message:"+config.validationCode+location.host;
+			var onMessage = config.onMessage;
+			var transport;
+			var otherSideDone = false;
+			var thisSideDone = false;
+			
+			
+			
+
+			config.onMessage = function(message, origin) {
+				
+				
+				if(thisSideDone && otherSideDone) {
+					_this.config.onMessage(message,origin);
+				} else {
+					// #ifdef debug
+	        easyXDM.Debug.trace('WithValidation got a message: "'+message+"'");
+	        // #endif
+				
+					if(message.indexOf('validation message:') == 0) {
+
+						// #ifdef debug
+					  easyXDM.Debug.trace("got a validation message");
+					  // #endif
+
+						if(message == validationMessage) {
+							// #ifdef debug
+						  easyXDM.Debug.trace("we have recived our random string");
+						  // #endif
+							thisSideDone = true;
+						} else {
+							otherSideDone = true;
+							// #ifdef debug
+						  easyXDM.Debug.trace("got the other sides random string, sending it back");
+						  // #endif
+							_this.inner_transport.postMessage(message);
+						}
+					} else {
+						console.debug("NONO!!");
+					}
+
+					//	When both sides are done we set the correct message handler and call onReady
+					if(thisSideDone && otherSideDone) {
+						// #ifdef debug
+		        easyXDM.Debug.trace('we are now done with validation so inform the user that all is good =)');
+		        // #endif
+						if(onReady) {
+							onReady();
+						}
+					}
+				}
+			};
+
+			/** 
+		   * Sends the message using the postMethod method available on the window object
+		   * @param {String} message The message to send
+		   */
+		  this.postMessage = function(message) {
+					this.inner_transport.postMessage(message);
+		  };
+
+			/**
+		   * Destroy all that we can destroy :)
+		   */
+		  this.destroy = function(){
+		      this.inner_transport.destroy();
+		  };
+
+			var newOnReady = function on_ready() {
+				// #ifdef debug
+	      easyXDM.Debug.trace("underling transport is ready, lets send the validation message");
+	      // #endif
+				_this.inner_transport.postMessage(validationMessage)
+			};
+
+			this.inner_transport = new TransportToWrap(config, newOnReady);
+
+			return this;
+		}
 };
 
 
