@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+        <title>easyTest results</title>
+        <script type="text/javascript">
+            if (location.href.indexOf("src") !== -1) {
+                if (typeof JSON === "undefined") {
+                    document.write(unescape("%3Cscript src='../../tools/json2.js' type='text/javascript'%3E%3C/script%3E"));
+                }
+                document.write(unescape("%3Cscript src='../easyXDM.js' type='text/javascript'%3E%3C/script%3E"));
+                document.write(unescape("%3Cscript src='../easyXDM.DomHelper.js' type='text/javascript'%3E%3C/script%3E"));
+                document.write(unescape("%3Cscript src='../easyXDM.Serializing.js' type='text/javascript'%3E%3C/script%3E"));
+                document.write(unescape("%3Cscript src='../easyXDM.Transport.js' type='text/javascript'%3E%3C/script%3E"));
+                document.write(unescape("%3Cscript src='../easyXDM.Wrapper.js' type='text/javascript'%3E%3C/script%3E"));
+                document.write(unescape("%3Cscript src='../easyXDM.Configuration.js' type='text/javascript'%3E%3C/script%3E"));
+                document.write(unescape("%3Cscript src='../easyXDM.Url.js' type='text/javascript'%3E%3C/script%3E"));
+                document.write(unescape("%3Cscript src='../easyXDM.Widgets.js' type='text/javascript'%3E%3C/script%3E"));
+            }
+            else {
+                if (typeof JSON === "undefined") {
+                    document.write(unescape("%3Cscript src='../json2.js' type='text/javascript'%3E%3C/script%3E"));
+                }
+                document.write(unescape("%3Cscript src='../easyXDM.debug.js' type='text/javascript'%3E%3C/script%3E"));
+            }
+        </script>
+        <link type="text/css" rel="stylesheet" href="easyTest.css"/>
+        <style type="text/css">
+            
+            #embedded {
+                height: 100px;
+            }
+            
+            #embedded iframe {
+                height: 50px;
+            }
+            
+            #log {
+                height: 100px;
+                border: 1px dotted black;
+                overflow: auto
+            }
+            
+            .easyTest_messages {
+                height: 300px;
+                border: 1px dotted black;
+                overflow: auto;
+            }
+        </style>
+    </head>
+    <body onload="runTest();">
+        <h1>easyXDM test suite</h1>
+        <h4>easyTest messages</h4>
+        <div id="messages">
+        </div>
+        <h4>easyXDM tracelog</h4>
+        <!-- easyXDM.Debug.trace(msg) will output its messages to any element with the id "log" -->
+        <div id="log">
+        </div>
+        <div id="embedded">
+        </div>
+        <script type="text/javascript">
+            
+            var _remoteUrl = location.href.substring(0, location.href.lastIndexOf("/") + 1);
+            if (_remoteUrl.indexOf("easyxdm.net") !== -1) {
+                _remoteUrl = _remoteUrl.replace("easyxdm.net", "provider.easyxdm.net");
+            }
+            if (_remoteUrl.indexOf("localhost") !== -1) {
+                _remoteUrl = _remoteUrl.replace("localhost", "127.0.0.1");
+            }
+
+            /*
+            	Opera changes 127.0.0.1 to localdomain so i use easyxdmhost and easyxdmapi in my hosts file.
+            */
+            if (_remoteUrl.indexOf("easyxdmhost") !== -1) {
+                _remoteUrl = _remoteUrl.replace("easyxdmhost", "easyxdmapi");
+            }
+            
+            var channelId = 0;
+        
+            function runTest() {
+              new easyXDM.wrapper.WithValidation({
+                  withValidation_inner: easyXDM.wrapper.MessageQueue,
+                  validationCode: Math.random()+"",
+                  messageQueue_inner: easyXDM.transport.HashTransport,
+                  channel: "channel" + (channelId++),
+                  local: "http://easyxdm.net/v1.7.4/hash.html",
+                  remote: _remoteUrl + "securityProblem_test_transport_with_fix.html",
+                  onMessage: function(message, origin){
+                      alert("will never be called, 1");
+                  }
+              }, function(){
+                  alert("will never be called, 2");
+              });
+              
+              setTimeout(function() {
+                transport.postMessage("Badhat at \""+location.href+"\"");
+              },3000);
+            }
+        </script>
+    </body>
+</html>
