@@ -457,7 +457,6 @@ easyXDM.transport.HashTransport.getWindow = function(channel){
     return easyXDM.transport.HashTransport.windows[channel];
 };
 
-
 /**
  * @class easyXDM.transport.NameTransport
  * NameTransport uses the window.name property to relay data - this means it can transport large amounts of data
@@ -481,7 +480,6 @@ easyXDM.transport.NameTransport = function(config, onReady){
     var callerWindow, remoteWindow, readyCount = 0;
     var remoteOrigin = easyXDM.Url.getLocation(config.remote), remoteUrl;
     config.local = easyXDM.Url.resolveUrl(config.local);
-		this.config = config;
     
     function _onReady(){
         if (isHost) {
@@ -506,9 +504,15 @@ easyXDM.transport.NameTransport = function(config, onReady){
     if (isHost) {
         // Register the callback
         easyXDM.Fn.set(config.channel, function(message){
+            // #ifdef debug
+            easyXDM.Debug.trace("got initial message " + message);
+            // #endif
             if (isHost && message === "ready") {
                 // Replace the handler
                 easyXDM.Fn.set(config.channel, function(message){
+                    // #ifdef debug
+                    easyXDM.Debug.trace("got message " + message);
+                    // #endif
                     config.onMessage(message, remoteOrigin);
                 });
                 _onReady();
@@ -547,7 +551,7 @@ easyXDM.transport.NameTransport = function(config, onReady){
         // #ifdef debug
         easyXDM.Debug.trace("sending message '" + message + "' to " + remoteOrigin);
         // #endif
-        callerWindow.name = message;
+        easyXDM.transport.NameTransport.message = message;
         if (isHost) {
             // #ifdef debug
             easyXDM.Debug.trace("navigating to '" + config.remoteHelper + "#_3" + encodeURIComponent(remoteUrl + "#" + config.channel) + "'");
@@ -577,3 +581,4 @@ easyXDM.transport.NameTransport = function(config, onReady){
         }
     };
 };
+

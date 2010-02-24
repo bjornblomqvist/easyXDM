@@ -6,7 +6,7 @@
         <meta http-equiv="EXPIRES" content="Sat, 01 Jan 2050 00:00:00 GMT"/>
         <script type="text/javascript">
             if (location.hash) {
-                if (location.hash.substring(1, 2) === "_") {
+              if (location.hash.substring(1, 2) === "_") {
                     switch (location.hash.substring(2, 3)) {
                         case "2":
                             // NameTransport local
@@ -28,6 +28,18 @@
                     window.parent.parent.easyXDM.transport.HashTransport.channelReady(location.hash.substring(1), window);
                 }
             }
+            else {
+                // To support the NameTransport
+                window.onunload = function(){
+                    try {
+                        window.name = window.parent.easyXDM.transport.NameTransport.message;
+                    } 
+                    catch (ex) {
+
+                    }
+                };
+            }
+            
         </script>
     </head>
     <body>
