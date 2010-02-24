@@ -11,10 +11,10 @@ easyXDM.wrapper = {
 	  // #endif
 	
 		if(config.messageQueue_inner === undefined) {
-			throw "When using MessageQueue you must define \"config.messageQueue_inner\""
+			throw "When using MessageQueue you must define \"config.messageQueue_inner\"";
 		}
 		
-		TransportToWrap = config.messageQueue_inner;
+		var TransportToWrap = config.messageQueue_inner;
 
 		
 		var _this = this;
@@ -95,14 +95,14 @@ easyXDM.wrapper = {
 		  // #endif
 
 			if(config.withValidation_inner === undefined) {
-				throw "When using WithValidation you must define \"config.withValidation_inner\""
+				throw "When using WithValidation you must define \"config.withValidation_inner\"";
 			}
 			
 			if(config.validationCode === undefined) {
-				throw "When using WithValidation you must define \"config.validationCode\""
+				throw "When using WithValidation you must define \"config.validationCode\"";
 			}
 
-			TransportToWrap = config.withValidation_inner;
+			var TransportToWrap = config.withValidation_inner;
 			var _this = this;
 
 
@@ -141,7 +141,7 @@ easyXDM.wrapper = {
 	        easyXDM.Debug.trace('WithValidation got a message: "'+message+"'");
 	        // #endif
 				
-					if(message.indexOf('validation message:') == 0) {
+					if(message.indexOf('validation message:') === 0) {
 
 						// #ifdef debug
 					  easyXDM.Debug.trace("got a validation message");
@@ -194,7 +194,7 @@ easyXDM.wrapper = {
 				// #ifdef debug
 	      easyXDM.Debug.trace("underling transport is ready, lets send the validation message");
 	      // #endif
-				_this.inner_transport.postMessage(validationMessage)
+				_this.inner_transport.postMessage(validationMessage);
 			};
 
 			this.inner_transport = new TransportToWrap(config, newOnReady);
