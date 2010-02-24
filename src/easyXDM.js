@@ -194,6 +194,11 @@ easyXDM = {
                     // #ifdef debug
                     easyXDM.Debug.trace("executing method " + name);
                     // #endif
+										// Add a callback if no was supplied
+										if(typeof(_callbacks["" + (++_callbackCounter)] = arguments[arguments.length - 1]) !== 'function') {
+											Array.prototype.push.call(arguments, function() {});
+										}
+
                     _callbacks["" + (++_callbackCounter)] = arguments[arguments.length - 1];
                     var request = {
                         name: name,
