@@ -408,6 +408,24 @@ function runTests(){
                 });
             }
         }, {
+            name: "async method with current_orign check",
+            timeout: 1000,
+            run: function(){
+                var scope = this;
+                this.remote.asyncMethod(this.expectedMessage, function(message){
+										scope.notifyResult(_remoteUrl.indexOf(scope.remote.current_origin) != -1);
+                });
+            }
+        }, {
+            name: "async method with global easyXDM_current_orign check",
+            timeout: 1000,
+            run: function(){
+                var scope = this;
+                this.remote.asyncMethod(this.expectedMessage, function(message){
+										scope.notifyResult(_remoteUrl.indexOf(exsyXDM_current_origin) != -1);
+                });
+            }
+        },{
             name: "regular method",
             timeout: 1000,
             run: function(){
