@@ -152,7 +152,7 @@ easyXDM = {
         // #endif
         var _channel;
         var _callbackCounter = 0, _callbacks = {};
-				this.remote_origin;
+				this.remote_origin = "";
 				var _this = this;
         
         /**
