@@ -271,7 +271,8 @@ easyXDM = {
                 easyXDM.Debug.trace("received request to execute method " + data.name + (data.id ? (" using callback id " + data.id) : ""));
                 // #endif
                 // A method call from the remote end
-								_this.remote_origin origin;
+								_this.remote_origin = origin;
+								window.exsyXDM_current_origin = origin;
                 _executeMethod(data.name, data.id, config.local[data.name], data.params);
             }
             else {
