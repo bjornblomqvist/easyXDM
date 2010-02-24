@@ -367,7 +367,8 @@ easyXDM.transport = {
                 // We are referencing an iframe
                 _callerWindow.src = _remoteUrl + "#" + (_msgNr++) + "_" + encodeURIComponent(message);
                 if (useResize) {
-                    _callerWindow.width = _resize_counter > 1000 ? 10 : _resize_counter += 50;
+	 									_resize_counter = _resize_counter > 1000 ? 10 : _resize_counter + 50;
+                    _callerWindow.width = _resize_counter;
 										// #ifdef debug
 										easyXDM.Debug.trace("resizing to: "+_callerWindow.width);
 										// #endif
